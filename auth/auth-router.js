@@ -25,6 +25,7 @@ router.post('/login', (req, res) => {
     .first()
     .then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
+        req.session.user = user; //saves the user obj to a property in the session in memory.
         res.status(200).json({
           message: `Welcome ${user.username}!`,
         });
@@ -35,6 +36,20 @@ router.post('/login', (req, res) => {
     .catch(error => {
       res.status(500).json(error);
     });
+});
+
+router.get('/logout', (req, res) => {
+  if(req.session) {
+    req.session.destroy(err => {
+      if(err) {
+        res.send('Cannot leave...');
+      }else {
+        res.send('Goooo bye bye!');
+      }
+    })
+  }else {
+    res.status(200).json({ message: "logged out"});
+  }
 });
 
 module.exports = router;
